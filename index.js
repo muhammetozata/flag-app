@@ -19,7 +19,7 @@ app.get('/', function(req, res) {
     
 })
 
-
+// ex: localhost:8000/question/countries
 app.get('/question/:type', function(req, res) {
     
     var rand = Math.floor(Math.random() * 251);
