@@ -2,14 +2,16 @@ const admin = require('firebase-admin')
 
 var serviceAccount = require("./serviceAccountKey.json")
 
+// admin.initializeApp(functions.config())
+
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: "https://flag-app-bcbd3.firebaseio.com"
 })
 
 var database = admin.database()
-
-exports.firebaseConnect = () => database
+ 
+exports.firebaseConnect = database
 
 // Realtime Firebase 
 exports.getKey = (ref) => database.ref(ref).push().getKey()
@@ -17,13 +19,12 @@ exports.getKey = (ref) => database.ref(ref).push().getKey()
 
 exports.get = function(ref, refId = null) {
 
-
-    // var result = database.ref(ref).once('value').then((data)=>data);
-    // return result.then(res=>console.log(res));
-    return database.ref('/users').once('value').then(function(snapshot) {
-        var username = (snapshot.val() && snapshot.val().username) || 'Anonymous';
-        // ...
-      });
+    return functions.https.onRequest((req, res) => {
+        var refData = admin.database().ref('users').on('value', (data) => {
+            res.json(data.val())
+        })
+        console.log(refData);
+    })
 }
 
 
