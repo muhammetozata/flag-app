@@ -16,7 +16,7 @@ app.use(logger('dev'))
 
 
 app.get('/', function(req, res) {
-    
+    res.send('Hello Flag App')
 })
 
 // ex: localhost:8000/question/countries
@@ -34,26 +34,22 @@ app.get('/question/:type', function(req, res) {
     }, (err) => res.json({erro: err}))
 })
 
-app.post('/', function(req, res) {
-    
-    var newID = db.add('users', req.body)
+app.get('/users/:nickname', (req,res) => {
 
-    console.log(newID)
+    var refUser = db.firebaseConnect.ref('users')
+    var refQuery = refUser.orderByChild('name').equalTo(req.params.nickname)
 
-    res.json({message: 'Successed!!', data: req.body })
+    refQuery.on('value', function(snapshot){
 
-})
+        res.json(snapshot.val())
+        refUser.off('value')
+    }, function(err){
 
-app.get('/users', function(req, res) {
-    
-    res.json(db.get('users'))
-})
-
-app.delete('/users/:id', function(req, res) {
-    
-    var result = db.remove('users', req.params.id)
-
-    console.log(result)
+        if(err.length>0) {
+            res.json({error: true, message: err})
+        }
+        refUser.off('value')
+    })
 })
 
 
