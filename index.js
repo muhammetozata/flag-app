@@ -14,7 +14,6 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 app.use(logger('dev'))
 
-
 app.get('/', function(req, res) {
     res.send('Hello Flag App')
 })
@@ -28,10 +27,12 @@ app.get('/question/:type', function(req, res) {
     
     refQuery = refQuestion.orderByChild('index').startAt(rand).limitToFirst(4)
 
-    refQuery.on('value', function(data) {
+    refQuery.on('value', (data) => {
+
         res.json(data.val())
         refQuery.off('value')
-    }, (err) => res.json({erro: err}))
+    }, 
+    (err) => res.json({erro: err}))
 })
 
 app.get('/users/:nickname', (req,res) => {
@@ -39,18 +40,44 @@ app.get('/users/:nickname', (req,res) => {
     var refUser = db.firebaseConnect.ref('users')
     var refQuery = refUser.orderByChild('name').equalTo(req.params.nickname)
 
-    refQuery.on('value', function(snapshot){
+    refQuery.on('value', (snapshot) => {
 
         res.json(snapshot.val())
         refUser.off('value')
-    }, function(err){
+    }, 
+    (err) => {
 
         if(err.length>0) {
+
             res.json({error: true, message: err})
         }
         refUser.off('value')
     })
 })
 
+app.post('/users/:id', (req, res) => {
+
+    if (req.body.level != '' && req.body.heart != '' && req.body.score != '' + req.body.level != '') 
+    {
+
+        var updataData = {}
+        var refUser = db.firebaseConnect.ref('users/'+ req.params.id + '/levels/' + req.body.level)
+
+        refUser.update({
+            'heart' : parseInt(req.body.heart),
+            'score' : parseInt(req.body.score),
+        }, (err) => {
+
+            if (err) 
+            {
+                res.json({error: true, message: err})
+            } else {
+                res.json({message: 'Updated'})
+            }
+            
+        })
+    }
+    
+})
 
 app.listen(port, () => console.log('App running on port ' + port))
