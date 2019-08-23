@@ -16,17 +16,21 @@ exports.firebaseConnect = database
 // Realtime Firebase 
 exports.getKey = (ref) => database.ref(ref).push().getKey()
 
-
+// Realtime Firebase Get
 exports.get = function(ref, refId = null) {
+    return new Promise((resolve, reject) => {
 
-    return functions.https.onRequest((req, res) => {
-        var refData = admin.database().ref('users').on('value', (data) => {
-            res.json(data.val())
-        })
-        console.log(refData);
+        if (refId != null && refId != '') 
+        {
+            admin.database().ref(ref + '/' + refId).once('value', (data) => resolve(data.val()))
+        
+        } else {
+            admin.database().ref(ref).on('value', (data) => resolve(data.val()))
+        }
+        
+        
     })
 }
-
 
 // Realtime Firebase Add
 exports.add = function(ref, data, customRefId = null) {

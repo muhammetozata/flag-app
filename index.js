@@ -18,8 +18,14 @@ app.get('/', function(req, res) {
     res.send('Hello Flag App')
 })
 
+// ex: localhost:8000/users
+app.get('/user/:id', async (req, res) => {
+    const users = await db.get('users', req.params.id)
+    res.json(users)
+})
+
 // ex: localhost:8000/question/countries
-app.get('/question/:type', function(req, res) {
+app.get('/question/:type', async function(req, res) {
     
     var rand = Math.floor(Math.random() * 251);
     
@@ -57,6 +63,7 @@ app.get('/users/:nickname', (req,res) => {
 
 app.post('/users/:id', (req, res) => {
 
+
     if (req.body.level != '' && req.body.heart != '' && req.body.score != '' + req.body.level != '') 
     {
 
@@ -76,6 +83,8 @@ app.post('/users/:id', (req, res) => {
             }
             
         })
+    } else {
+        res.status(404).json({err: true, message: 'Not Found !!'})
     }
     
 })
